@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Garbage Classifier</title>
+
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- 🌙 Toggle Switch -->
+<div class="switch-container">
+    <label class="switch">
+        <input type="checkbox" id="modeToggle">
+        <span class="slider round"></span>
+    </label>
+    <div class="switch-label">Mode</div>
+</div>
+
+<!-- 🖼 Header -->
+<div class="header">
+    <h1 class="title-over-image">Garbage Image Classifier</h1>
+    <img src="IMAGES/fommi.jpg" alt="Header Image">    
+</div>
+
+<!-- 📦 Hidden input + Loader -->
+<div class="container">
+    <input type="file" id="imageInput" accept="image/*">
+    <div id="loader">Processing...</div>
+</div>
+
+<!-- 👁 Image Frame مع زرار Upload -->
+<div id="imageFrame">
+    <img id="displayImage" alt="Selected Image" style="display:none;">
+    <button id="uploadBtn">Upload Image</button>
+</div>
+
+<!-- 🔄 Buttons تحت فريم رفع الصورة -->
+<div class="buttons-row">
+    <button id="restartBtn">Restart</button>
+    <button id="classifyBtn">Classify Waste</button>
+</div>
+
+<!-- 🏷 Result Frame -->
+<div id="resultFrame">
+    <div id="resultDetails"></div>
+</div>
+
+<!-- 🔢 System Overview Section -->
+<div class="system-overview">
+    <h2>System Overview</h2>
+    <div class="cards-container">
+        <div class="card">
+            <div class="card-title">Classification Accuracy</div>
+            <div class="card-value">96.8%</div>
+        </div>
+        <div class="card">
+            <div class="card-title">Avg. Processing Time</div>
+            <div class="card-value">45 ms</div>
+        </div>
+        <div class="card">
+            <div class="card-title">Waste Categories</div>
+            <div class="card-value">10</div>
+        </div>
+        <div class="card">
+            <div class="card-title">Images Processed</div>
+            <div class="card-value">75+</div>
+        </div>
+    </div>
+</div>
+
+<!-- 🗑 Waste Categories Section -->
+<div class="waste-categories">
+    <h2>Waste Categories</h2>
+    <div class="cards-container">
+        <div class="card"><div class="card-title">Trash</div></div>
+        <div class="card"><div class="card-title">Shoes</div></div>
+        <div class="card"><div class="card-title">Plastic</div></div>
+        <div class="card"><div class="card-title">Paper</div></div>
+        <div class="card"><div class="card-title">Metal</div></div>
+        <div class="card"><div class="card-title">Glass</div></div>
+        <div class="card"><div class="card-title">Clothes</div></div>
+        <div class="card"><div class="card-title">Cardboard</div></div>
+        <div class="card"><div class="card-title">Biological</div></div>
+        <div class="card"><div class="card-title">Battery</div></div>
+    </div>
+</div>
+
+<!-- 👥 Footer كأسماء نص عادي -->
+<div class="footer-names">
+    Peter Raafat<br>
+    Fatma Mohamed<br>
+    Omar Ahmed<br>
+    Mohammed Rafeeq<br>
+    NourEldeen Mohamed
+</div>
+
+<!-- 🟢 JavaScript -->
+<script>
+const modeToggle = document.getElementById("modeToggle");
+const imageInput = document.getElementById("imageInput");
+const displayImage = document.getElementById("displayImage");
+const loader = document.getElementById("loader");
+const resultFrame = document.getElementById("resultFrame");
+const resultDetails = document.getElementById("resultDetails");
+const uploadBtn = document.getElementById("uploadBtn");
+const restartBtn = document.getElementById("restartBtn");
+const classifyBtn = document.getElementById("classifyBtn");
+
+/* Dark Mode Toggle */
+modeToggle.addEventListener("change", () => { document.body.classList.toggle("dark-mode"); });
+
+/* Upload Image Button */
+uploadBtn.addEventListener("click", () => { imageInput.click(); });
+
+/* عرض الصورة عند اختيارها */
+imageInput.addEventListener("change", function(event){
+    const file = event.target.files[0];
+    if(!file) return;
+
+    displayImage.src = URL.createObjectURL(file);
+    displayImage.style.display = "block"; // إظهار الصورة
+    uploadBtn.style.display = "none";     // إخفاء الزرار
+
+    resultDetails.innerHTML = "";
+    resultFrame.style.display = "none";
+});
+
+/* Restart Button */
+restartBtn.addEventListener("click", () => {
+    imageInput.value = "";
+    displayImage.src = "";
+    displayImage.style.display = "none";   
+    uploadBtn.style.display = "inline-block"; 
+    resultDetails.innerHTML = "";
+    resultFrame.style.display = "none";
+});
+
+/* Classify Waste Button */
+classifyBtn.addEventListener("click", () => {
+    const file = imageInput.files[0];
+    if(!file){ alert("Please select an image first"); return; }
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+        const base64Image = reader.result;
+
+        loader.style.display = "block";
+        resultFrame.style.display = "block";
+        resultDetails.innerHTML = "";
+
+        try {
+            const res = await fetch("/classify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ image: base64Image })
+            });
+
+            const data = await res.json();
+            loader.style.display = "none";
+
+            if(data.error){
+                resultDetails.innerHTML = "Error: " + data.error;
+            } else if(data.results && data.results.length > 0){
+                const topResult = data.results[0];
+                resultDetails.innerHTML = `Class: ${topResult.category.name} , Accuracy ${(topResult.confidence*100).toFixed(2)}%`;
+            } else {
+                resultDetails.innerHTML = "No results returned";
+            }
+
+        } catch(err){
+            loader.style.display = "none";
+            resultDetails.innerHTML = "Something went wrong! Please try again.";
+            console.error(err);
+        }
+    };
+    reader.readAsDataURL(file);
+});
+</script>
+</body>
+</html>
