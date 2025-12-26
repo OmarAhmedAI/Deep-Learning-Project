@@ -1,5 +1,9 @@
 # ♻️ Garbage Classification using Deep Learning
 
+![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)
+![Deep Learning](https://img.shields.io/badge/Deep%20Learning-CNN-blue?style=for-the-badge)
+
+
 ## 📌 Project Overview
 This project implements a **deep learning–based garbage classification system** that classifies waste into predefined categories to support recycling and waste management automation.
 
