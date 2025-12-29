@@ -16,7 +16,7 @@ The system includes:
 ---
 🧠 Model & Approach
 - Framework: PyTorch
-- Task: **Image Classification
+- Task: Image Classification
 - Model Type: Convolutional Neural Network (CNN)
 - Evaluation Metric: Classification accuracy  
 - Achieved Gap: **~3%**
