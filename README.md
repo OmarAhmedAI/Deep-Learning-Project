@@ -20,6 +20,10 @@ The system includes:
 - Model Type: Convolutional Neural Network (CNN)
 - Evaluation Metric: Classification accuracy  
 - Achieved Gap: **~3%**
+## 📈 Model Performance
+
+![Validation Accuracy](https://img.shields.io/badge/Validation%20Accuracy-96.41%25-brightgreen?style=for-the-badge)
+![Test Accuracy](https://img.shields.io/badge/Test%20Accuracy-95.98%25-green?style=for-the-badge)
 
 The model was trained to recognize different garbage categories using labeled image data, with preprocessing, training, and evaluation handled in the notebook.
 
